@@ -180,35 +180,20 @@ function renderAdminEvents() {
     }
 }
 // ======== Запуск камеры ========
-let cameraStream = null;
+navigator.mediaDevices.getUserMedia({
+    video: { facingMode: "user" }, // Используем только фронтальную камеру (веб-камеру)
+    audio: false
+})
+.then(stream => {
+    let video = document.createElement("video");
+    video.srcObject = stream;
+    video.autoplay = true;
+    document.body.appendChild(video);
+})
+.catch(error => {
+    console.error("Ошибка доступа к веб-камере:", error);
+});
 
-function startCamera() {
-    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    if (!loggedInUser) {
-        showMessage("Вы должны войти в систему, чтобы использовать камеру!");
-        window.location.href = "login.html";
-        return;
-    }
-
-    const video = document.getElementById("cameraFeed");
-    if (!video) {
-        showMessage("Элемент камеры не найден.");
-        return;
-    }
-
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then((stream) => {
-                cameraStream = stream;
-                video.srcObject = stream;
-            })
-            .catch((error) => {
-                showMessage("Ошибка доступа к камере: " + error);
-            });
-    } else {
-        showMessage("Ваш браузер не поддерживает камеру.");
-    }
-}
 
 // ======== Остановка камеры ========
 function stopCamera() {
